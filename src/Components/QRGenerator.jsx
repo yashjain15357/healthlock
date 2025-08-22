@@ -1,31 +1,31 @@
 import React, { useState } from "react";
-import QRCode from "qrcode.react";
+import { QRCodeCanvas } from "qrcode.react"; // correct import for v3+
 
-function QRGenerator() {
+export default function QRGenerator() {
   const [token, setToken] = useState("");
 
-  const generateQR = () => {
-    const newToken = "TEMP_TOKEN_" + Date.now(); // TODO: fetch from backend
-    setToken(newToken);
+  const generate = () => {
+    const t = "TEMP_TOKEN_" + Date.now();
+    setToken(t);
   };
 
   return (
-    <div className="p-4 border rounded-lg shadow mt-4">
-      <h2 className="font-bold mb-2">Generate QR for Doctor</h2>
+    <div>
       <button
-        onClick={generateQR}
-        className="bg-green-600 text-white px-3 py-1 rounded"
+        onClick={generate}
+        style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #1677ff", background: "#1677ff", color: "white", cursor: "pointer" }}
       >
         Generate QR
       </button>
+
       {token && (
-        <div className="mt-3">
-          <QRCode value={token} size={150} />
-          <p className="text-sm mt-2">Share this QR with doctor</p>
+        <div style={{ marginTop: 12, textAlign: "center" }}>
+          <QRCodeCanvas value={token} size={180} />
+          <div style={{ fontSize: 12, color: "#555", marginTop: 8 }}>
+            Share this QR with the doctor
+          </div>
         </div>
       )}
     </div>
   );
 }
-
-export default QRGenerator;

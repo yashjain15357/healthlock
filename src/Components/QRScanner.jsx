@@ -1,29 +1,47 @@
-import React, { useState } from "react";
-import QrReader from "react-qr-reader";
+import React, { useEffect, useRef } from "react";
+import { Html5QrcodeScanner } from "html5-qrcode";
 
-function QRScanner() {
-  const [scannedData, setScannedData] = useState("");
+// A React wrapper around Html5QrcodeScanner that cleans up correctly in Vite/React 18.
+export default function QRScanner({ onDecode, onError }) {
+  const idRef = useRef("qr-reader-" + Math.random().toString(36).slice(2));
 
-  const handleScan = (data) => {
-    if (data) {
-      setScannedData(data);
-      alert("Token scanned: " + data);
-      // TODO: call backend to fetch record
-    }
-  };
+  useEffect(() => {
+    const scanner = new Html5QrcodeScanner(
+      idRef.current,
+      {
+        fps: 10,
+        qrbox: { width: 250, height: 250 },
+        rememberLastUsedCamera: true,
+        // If you want back camera by default on mobile, uncomment:
+        // defaultCamera: "environment",
+      },
+      false
+    );
+
+    scanner.render(
+      (decodedText) => {
+        onDecode?.(decodedText);
+        // Stop after first success; remove this if you want continuous scans:
+        scanner.clear().catch(() => {});
+      },
+      (err) => {
+        // html5-qrcode spams errors while searching; only forward serious ones
+        if (typeof onError === "function") onError(err);
+      }
+    );
+
+    return () => {
+      // ensure camera is released on unmount
+      scanner.clear().catch(() => {});
+    };
+  }, [onDecode, onError]);
 
   return (
-    <div className="p-4 border rounded-lg shadow mt-4">
-      <h2 className="font-bold mb-2">Scan Patient QR</h2>
-      <QrReader
-        delay={300}
-        onError={(err) => console.error(err)}
-        onScan={handleScan}
-        style={{ width: "100%" }}
-      />
-      {scannedData && <p className="mt-2">Scanned: {scannedData}</p>}
+    <div>
+      <div id={idRef.current} style={{ width: "100%" }} />
+      <p style={{ fontSize: 12, color: "#777", marginTop: 8 }}>
+        Tip: if camera doesn’t appear, allow permission or use HTTPS when testing on phone.
+      </p>
     </div>
   );
 }
-
-export default QRScanner;

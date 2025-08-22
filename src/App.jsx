@@ -6,7 +6,6 @@ import Dashboard from "./pages/Dashboard";
 import DoctorDashboard from "./pages/DoctorDashboard";
 import ConsentManagement from "./pages/ConsentManagement";
 import Navbar from "./Components/Navbar";
-// import Navbar from "./Components/Navbar";
 
 function App() {
   return (
